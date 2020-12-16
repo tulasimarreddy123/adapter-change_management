@@ -26,6 +26,7 @@ class ServiceNowConnector {
    */
   constructor(options) {
     this.options = options;
+    console.log('options '+JSON.stringify(options));
   }
 
   /**
@@ -39,7 +40,7 @@ class ServiceNowConnector {
  * @return {string} ServiceNow URL
  */
  constructUri(serviceNowTable, query = null) {
-  let uri = `/api/now/table/${serviceNowTable}`;
+  let uri = `/api/now/table/`+this.options.serviceNowTable;
   if (query) {
     uri = uri + '?' + query;
   }
@@ -90,11 +91,11 @@ class ServiceNowConnector {
    let callbackData = null;
    let callbackError = null;
    if(error){
-        console.error('Error present.');
+        log.error('Error present.');
        callbackError = error;
    }else if(!validResponseRegex.test(response.statusCode)){
        callbackError = 'Service Now instance is hibernating';
-      console.error(callbackError);
+      log.error(callbackError);
     } else {
       callbackData = response;
     }
@@ -131,10 +132,15 @@ class ServiceNowConnector {
    * hardcoded values.
    */
   const requestOptions = {
-  url: 'https://dev58240.service-now.com/',
-  username: 'admin',
-  password: 'ko6UuTUZ2Ome'
+  method: callOptions.method,
+  auth: {
+      user: callOptions.username,
+      pass: callOptions.password,
+    },
+  baseUrl: callOptions.url,
+  uri: uri,
   };
+  console.log('request options '+JSON.stringify(requestOptions));
   request(requestOptions, (error, response, body) => {
     this.processRequestResults(error, response, body, (processedResults, processedError) => callback(processedResults, processedError));
   });

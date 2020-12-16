@@ -103,6 +103,7 @@ function processRequestResults(error, response, body, callback) {
       console.error(callbackError);
     } else {
       callbackData = response;
+      console.log('in else '+JSON.stringify(response));
     }
     return callback(callbackData, callbackError);
 }
@@ -125,11 +126,13 @@ function processRequestResults(error, response, body, callback) {
  */
 function sendRequest(callOptions, callback) {
   // Initialize return arguments for callback
-  let uri;
+  let myuri;
   if (callOptions.query)
-    uri = constructUri(callOptions.serviceNowTable, callOptions.query);
+    myuri = constructUri(callOptions.serviceNowTable, callOptions.query);
   else
-    uri = constructUri(callOptions.serviceNowTable);
+    myuri = constructUri(callOptions.serviceNowTable);
+
+    console.log('uri is '+myuri);
   /**
    * You must build the requestOptions object.
    * This is not a simple copy/paste of the requestOptions object
@@ -137,10 +140,15 @@ function sendRequest(callOptions, callback) {
    * hardcoded values.
    */
   const requestOptions = {
-  url: 'https://dev58240.service-now.com/',
-  username: 'admin',
-  password: 'ko6UuTUZ2Ome'
+  method: callOptions.method,
+  auth: {
+      user: options.username,
+      pass: options.password,
+    },
+  baseUrl: options.url,
+  uri: myuri,
   };
+  console.log('requested options is '+JSON.stringify(requestOptions));
   request(requestOptions, (error, response, body) => {
     processRequestResults(error, response, body, (processedResults, processedError) => callback(processedResults, processedError));
   });
@@ -194,13 +202,16 @@ function main() {
       console.error(`\nError returned from GET request:\n${JSON.stringify(error)}`);
     }
     console.log(`\nResponse returned from GET request:\n${JSON.stringify(data)}`)
+
+    
+       
   });
-  post({ serviceNowTable: 'change_request' }, (data, error) => {
+ /** post({ serviceNowTable: 'change_request' }, (data, error) => {
     if (error) {
       console.error(`\nError returned from POST request:\n${JSON.stringify(error)}`);
     }
     console.log(`\nResponse returned from POST request:\n${JSON.stringify(data)}`)
-  });
+  });**/
 }
 
 
